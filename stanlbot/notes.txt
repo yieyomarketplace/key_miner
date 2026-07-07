@@ -1,0 +1,44 @@
+
+lifeos/
+├── app/
+│   ├── __init__.py
+│   ├── main.py                 # FastAPI app initialization, lifespan, routers
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── config.py           # Pydantic settings, environment variables
+│   │   ├── database.py         # SQLite Cloud connection & schema initialization
+│   │   └── security.py         # Telegram webhook HMAC validation
+│   ├── ai/
+│   │   ├── __init__.py
+│   │   ├── brain.py            # NVIDIA NIM wrapper (Chat, Vision, Embeddings)
+│   │   └── tools.py            # Function calling definitions (Intent routing)
+│   ├── services/               # Business logic / The "Organs"
+│   │   ├── __init__.py
+│   │   ├── router_service.py   # Intent routing logic based on AI output
+│   │   ├── rag_service.py      # Document processing, vector search, FTS5
+│   │   ├── crm_service.py      # Contact management, follow-ups, context
+│   │   ├── finance_service.py  # SMS parsing, market sentiment, portfolio
+│   │   └── task_service.py     # Task extraction, prioritization, scheduling
+│   ├── telegram/               # Telegram Interface (Aiogram 3.x)
+│   │   ├── __init__.py
+│   │   ├── bot.py              # Bot & Dispatcher initialization
+│   │   ├── handlers/
+│   │   │   ├── __init__.py
+│   │   │   ├── start.py        # /start, /dashboard commands
+│   │   │   ├── documents.py    # Document/image/voice handlers
+│   │   │   ├── messages.py     # Text message handlers
+│   │   │   └── callbacks.py    # Inline keyboard callback handlers (Glassy UI)
+│   │   └── keyboards.py        # UI layouts, inline keyboards, formatting
+│   └── api/                    # FastAPI Endpoints (The "Nervous System")
+│       ├── __init__.py
+│       ├── webhooks.py         # Telegram webhook endpoint
+│       └── cron.py             # External cron endpoints (morning brief, market tick)
+├── tests/                      # Pytest files
+├── requirements.txt
+├── .env.example
+├── Procfile                    # For Render deployment (Uvicorn command)
+└── README.md
+
+curl -F "url=https://poor-icons-double.loca.lt/webhook" \
+     -F "secret_token=7814487246:AAHlWNWoTSTdSz7XTqAO9leimSYjU4dL7K0" \
+     https://api.telegram.org/bot7814487246:AAHlWNWoTSTdSz7XTqAO9leimSYjU4dL7K0/setWebhook
