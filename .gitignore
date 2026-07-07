@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 downloads/
 venv/
+findings.json
+github_key_miner.log
