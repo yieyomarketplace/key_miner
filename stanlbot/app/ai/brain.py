@@ -1,11 +1,11 @@
 # app/ai/brain.py
 """
 The LifeOS Brain: A robust wrapper around NVIDIA NIM APIs.
-Handles Chat, Vision, Embeddings, and Intent Routing with retry logic.
 """
 import logging
 import json
 import base64
+import httpx
 from typing import List, Dict, Any, Optional
 from openai import AsyncOpenAI, APIError, RateLimitError, APIConnectionError
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -18,22 +18,19 @@ logger = logging.getLogger(__name__)
 class LifeOSBrain:
     def __init__(self):
         settings = get_settings()
+        
+        # FIX: Added a strict 30-second timeout to prevent the bot from hanging forever
+        # Also added .strip() to ensure no accidental spaces from Render env vars
         self.client = AsyncOpenAI(
-            base_url=str(settings.NVIDIA_BASE_URL),
-            api_key=settings.NVIDIA_API_KEY.get_secret_value()
+            base_url=str(settings.NVIDIA_BASE_URL).rstrip('/'),
+            api_key=settings.NVIDIA_API_KEY.get_secret_value().strip(),
+            timeout=httpx.Timeout(30.0, connect=10.0) 
         )
         
         # --- SELECTED MODEL STACK ---
-        
-        # 1. The Brain: Optimized for speed and agentic tool calling (Function Calling)
         self.chat_model = "deepseek-ai/deepseek-v4-flash"
-        
-        # 2. The Eyes: Omni-modal model for structured reasoning on images/documents
         self.vision_model = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
-        
-        # 3. The Memory: Standard NVIDIA RAG embedding model
         self.embed_model = "nvidia/nv-embedqa-e5-v5"
-        
         # ----------------------------
 
     @retry(
@@ -59,7 +56,7 @@ class LifeOSBrain:
     async def route_intent(self, user_input: str, context: str = "") -> Dict[str, Any]:
         """Uses Function Calling to determine the user's intent and route to the correct module."""
         messages = [
-            {"role": "system", "content": "You are the central routing AI for LifeOS. Analyze the user input and route it to the correct module using the route_user_intent tool. If context is provided, use it to make a better decision."},
+            {"role": "system", "content": "You are the central routing AI for LifeOS. Analyze the user input and route it to the correct module using the route_user_intent tool."},
         ]
         if context:
             messages.append({"role": "system", "content": f"User Context: {context}"})
@@ -111,7 +108,7 @@ class LifeOSBrain:
             logger.error(f"Vision processing failed: {e}")
             raise
 
-    async def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    async def generate_embeddings(self, texts: List[str], input_type: str = "passage") -> List[List[float]]:
         """Generates vector embeddings for a list of texts for RAG search."""
         try:
             response = await self.client.embeddings.create(
