@@ -1,0 +1,19 @@
+git-key-miner/
+├── config/
+│   └── config.yaml
+├── src/
+│   ├── __init__.py
+│   ├── miners/
+│   │   ├── __init__.py
+│   │   ├── github_miner.py
+│   │   └── gitlab_miner.py
+│   ├── detectors/
+│   │   ├── __init__.py
+│   │   ├── key_detector.py
+│   │   └── patterns.py
+│   ├── notifiers/
+│   │   ├── __init__.py
+│   │   └── notifier.py
+│   └── main.py
+├── requirements.txt
+└── README.md

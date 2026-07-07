@@ -1,0 +1,51 @@
+How to Use
+Set your GitHub token:
+
+bash
+export GITHUB_TOKEN=ghp_...
+or put it in a config.yaml.
+
+Basic scan (first 100 repos per query, 5 workers):
+
+bash
+python github_key_miner.py
+Limit to 10 repos, scan a specific repo:
+
+bash
+python github_key_miner.py --max-repos 10 --include-repo "owner/name"
+Resume after interruption:
+
+bash
+python github_key_miner.py --resume
+Flush every 50 findings (instead of after each repo):
+
+bash
+python github_key_miner.py --flush-interval 50 --no-flush-on-repo
+Quiet mode (no console logs, only file):
+
+bash
+python github_key_miner.py --quiet
+Custom config file:
+
+bash
+python github_key_miner.py -c myconfig.yaml
+New Features Summary
+Incremental JSON output: findings are saved progressively (you can view partial results while scanning).
+
+Resume support: if interrupted, use --resume to skip already scanned repos.
+
+Graceful shutdown: Ctrl+C saves all findings before exiting.
+
+Rate‑limit handling: respects GitHub's secondary rate limits with Retry-After.
+
+Deduplication: avoids duplicate secret reports within the same repository.
+
+Extended key patterns: added OpenAI, Azure, and more.
+
+State tracking: stores processed repos and stats in state.json.
+
+Quiet mode for less clutter.
+
+Fixed deprecation warning for PyGithub.
+
+The output JSON now includes a "timestamp", "metadata" (with config and start time), and a flat list of findings, each with repository, owner, file path, line, context, masked secret, confidence, and pattern type.
